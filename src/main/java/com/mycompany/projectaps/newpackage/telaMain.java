@@ -1,0 +1,520 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package com.mycompany.projectaps.newpackage;
+
+import com.mycompany.projectaps.Mensagens;
+import com.mycompany.projectaps.Mensagens.Action;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JList;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
+
+/**
+ *
+ * @author Joao Vitor
+ */
+public class telaMain extends javax.swing.JFrame {
+
+    private Socket socket;
+    private Mensagens msg;
+    private ProcessaCliente pc;
+
+    public JTextField getTxtSenha() {
+        return txtSenha;
+    }
+
+    public void setTxtSenha(JTextField txtSenha) {
+        this.txtSenha = txtSenha;
+    }
+
+    public JTextField getTxtUser() {
+        return txtUser;
+    }
+
+    public void setTxtUser(JTextField txtUser) {
+        this.txtUser = txtUser;
+    }
+
+    /**
+     * Creates new form telaMain
+     */
+    public telaMain() {
+        initComponents();
+
+    }
+
+    public class ListenerSocket implements Runnable {
+
+        private ObjectInputStream input;
+
+        public ListenerSocket(Socket socket) {
+            try {
+                this.input = new ObjectInputStream(socket.getInputStream());
+            } catch (IOException ex) {
+                Logger.getLogger(telaMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+
+        @Override
+        public void run() {
+            Mensagens msg = null;
+            try {
+                while ((msg = (Mensagens) input.readObject()) != null) {
+                    Action action = msg.getAction();
+
+                    if (action.equals(Action.conectar)) {
+                        conectado(msg);
+                    } else if (action.equals(Action.desconectar)) {
+                        desconectado();
+                        socket.close();
+                    } else if (action.equals(Action.enviaUm)) {
+                        recebe(msg);
+                    } else if (action.equals(Action.usuariosOn)) {
+                        atualizarOn(msg);
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(telaMain.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(telaMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    }
+
+    public void conectado(Mensagens msg) {
+        /* UMA CONDIÇÃO CASO O LOGIN DO USUÁRIO ESTEJA ERRADO
+        if(msg.getText().equals("NO")) {
+            this.textLogin.setName("");
+            JOptionPane.showMessageDialog(this, "Conexão não realizada!\nOs dados digitados não estão cadastrados");
+            return;
+        }
+         */
+
+        this.msg = msg;
+
+        this.textMsg.setEnabled(true);
+        this.msgRecebidas.setEnabled(true);
+        this.btnEnviar.setEnabled(true);
+        this.listaOnline.setEnabled(true);
+        this.btnArq.setEnabled(true);
+        this.jLabel1.setEnabled(true);
+        this.btnComp.setEnabled(true);
+        System.out.println("Conectado com sucesso!");
+    }
+
+    public void desconectado() {
+
+        this.textMsg.setEnabled(false);
+        this.btnEnviar.setEnabled(false);
+        this.btnArq.setEnabled(false);
+        this.jLabel1.setEnabled(false);
+        this.btnComp.setEnabled(false);
+        System.out.println("Saiu com sucesso!");
+
+    }
+
+    public void recebe(Mensagens msg) {
+        String text = msg.getText();
+        // Verifica e substitui os códigos de emoticons
+        text = text.replaceAll("\\(y\\)", getEmoticon("(y)"));
+        text = text.replaceAll(":\\)", getEmoticon(":)"));
+        text = text.replaceAll(";\\)", getEmoticon(";)"));
+        this.msgRecebidas.append(msg.getNome() + ": " + msg.getText() + "\n");
+    }
+
+    public void atualizarOn(Mensagens msg) {
+        Set<String> nomess = msg.getSetOnlines();
+
+        String[] array = (String[]) nomess.toArray(new String[nomess.size()]);
+
+        nomess.remove((String) msg.getNome());
+
+        this.listaOnline.setListData(array);
+        // Aceita uma única selecao de nome por vez 
+        this.listaOnline.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        // Para que os nomes apareçam um a baixo do outro 
+        this.listaOnline.setLayoutOrientation(JList.VERTICAL);
+
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel3 = new javax.swing.JPanel();
+        btnComp = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        listaOnline = new javax.swing.JList<>();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        msgRecebidas = new javax.swing.JTextArea();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        textMsg = new javax.swing.JTextField();
+        btnEnviar = new javax.swing.JButton();
+        btnArq = new javax.swing.JButton();
+        btnCadastrar = new javax.swing.JButton();
+        btnLogin = new javax.swing.JButton();
+        txtUser = new javax.swing.JTextField();
+        txtSenha = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+
+        jPanel3.setBackground(new java.awt.Color(35, 11, 32));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 450, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 480, Short.MAX_VALUE)
+        );
+
+        btnComp.setText("Compartilhar");
+        btnComp.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnComp.setEnabled(false);
+        btnComp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCompActionPerformed(evt);
+            }
+        });
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("ApsTalk");
+        setResizable(false);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jScrollPane1.setBorder(null);
+
+        listaOnline.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        listaOnline.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        listaOnline.setEnabled(false);
+        jScrollPane1.setViewportView(listaOnline);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 108, -1, 350));
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jScrollPane2.setBorder(null);
+
+        msgRecebidas.setEditable(false);
+        msgRecebidas.setColumns(20);
+        msgRecebidas.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        msgRecebidas.setRows(5);
+        msgRecebidas.setBorder(null);
+        msgRecebidas.setEnabled(false);
+        jScrollPane2.setViewportView(msgRecebidas);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(83, 108, 370, 280));
+
+        jLabel2.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setText("Usuário");
+        jLabel2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jLabel2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 12, 59, 27));
+
+        jLabel3.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setText("Senha");
+        jLabel3.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 46, 59, 27));
+
+        jPanel4.setBackground(new java.awt.Color(23, 64, 100));
+
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Conectados");
+        jLabel1.setEnabled(false);
+
+        textMsg.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        textMsg.setEnabled(false);
+        textMsg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textMsgActionPerformed(evt);
+            }
+        });
+
+        btnEnviar.setText("Enviar");
+        btnEnviar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnEnviar.setEnabled(false);
+        btnEnviar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEnviarActionPerformed(evt);
+            }
+        });
+
+        btnArq.setText("Enviar arquivos");
+        btnArq.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnArq.setEnabled(false);
+        btnArq.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnArqActionPerformed(evt);
+            }
+        });
+
+        btnCadastrar.setText("Cadastrar");
+        btnCadastrar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnCadastrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCadastrarActionPerformed(evt);
+            }
+        });
+
+        btnLogin.setText("Conectar");
+        btnLogin.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoginActionPerformed(evt);
+            }
+        });
+
+        txtUser.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        txtUser.setDragEnabled(true);
+
+        txtSenha.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jLabel4.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Emoticons: /joia,  :),  ;)");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel4)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(83, 83, 83)
+                        .addComponent(textMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnEnviar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnArq, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addContainerGap(84, Short.MAX_VALUE)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtUser, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtSenha, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnCadastrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(71, 71, 71)))
+                .addGap(24, 24, 24))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(85, 85, 85)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 292, Short.MAX_VALUE)
+                        .addComponent(textMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(btnLogin)
+                                    .addComponent(txtUser, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnCadastrar))
+                            .addComponent(txtSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnArq)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnEnviar)))
+                .addContainerGap())
+        );
+
+        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 470, 470));
+
+        pack();
+        setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
+        String text = this.textMsg.getText();
+        String name = this.msg.getNome();
+        this.msg = new Mensagens();
+
+        // Verificar se a mensagem é para o grupo ou individual
+        if (this.listaOnline.getSelectedIndex() > -1) {
+            this.msg.setnReservado(this.listaOnline.getSelectedValue());
+            this.msg.setAction(Action.enviaUm);
+            this.listaOnline.clearSelection();
+        } else {
+            this.msg.setAction(Action.envia);
+        }
+
+        // Verifica e substitui os códigos de emoticons
+        text = text.replaceAll("\\/joia", getEmoticon("/joia"));
+        text = text.replaceAll(":\\)", getEmoticon(":)"));
+        text = text.replaceAll(";\\)", getEmoticon(";)"));
+
+        if (!text.isEmpty()) {
+            this.msg.setNome(name);
+            this.msg.setText(text);
+
+            this.msgRecebidas.append("Eu: " + text + "\n");
+
+            this.pc.enviaMensagem(this.msg);
+        }
+
+        this.textMsg.setText("");
+    }//GEN-LAST:event_btnEnviarActionPerformed
+
+    private String getEmoticon(String emoji) {
+        return switch (emoji) {
+            case "/joia" ->
+                "👍";
+            case ":)" ->
+                "😊";
+            case ";)" ->
+                "😉";
+            default ->
+                emoji;
+        }; // Retorna a mensagem atual se não for um emoticon conhecido
+    }
+
+
+    private void btnCompActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnCompActionPerformed
+
+    private void textMsgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textMsgActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textMsgActionPerformed
+
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+        String nome = txtUser.getText();
+        //String senha = this.txtSenha.getText();
+        if (!nome.isEmpty()) {
+
+            // CONEXAO COM A TELA PRINCIPAL
+            this.msg = new Mensagens();
+            this.msg.setAction(Action.conectar);
+            this.msg.setNome(nome);
+
+            if (this.socket == null) {
+                this.pc = new ProcessaCliente();
+                this.socket = this.pc.conectar();
+
+                new Thread(new ListenerSocket(this.socket)).start();
+
+            }
+
+            this.pc.enviaMensagem(msg);
+        }
+    }//GEN-LAST:event_btnLoginActionPerformed
+
+    private void btnArqActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnArqActionPerformed
+        JFileChooser escolheArq = new JFileChooser();
+        escolheArq.setDialogTitle("Selecione um arquivo para enviar");
+        int result = escolheArq.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File arqUser = escolheArq.getSelectedFile();
+
+            msg = new Mensagens();
+            msg.setAction(Mensagens.Action.enviaArq);
+            msg.setNome(this.msg.getNome());
+            msg.setFile(arqUser);
+            pc.enviaMensagem(msg);
+            msgRecebidas.append("Arquivo enviado: " + arqUser.getName() + "\n");
+        }
+    }//GEN-LAST:event_btnArqActionPerformed
+
+    private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
+        telaCadastro telaCa = new telaCadastro();
+        telaCa.setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_btnCadastrarActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnArq;
+    private javax.swing.JButton btnCadastrar;
+    private javax.swing.JButton btnComp;
+    private javax.swing.JButton btnEnviar;
+    private javax.swing.JButton btnLogin;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JList<String> listaOnline;
+    private javax.swing.JTextArea msgRecebidas;
+    private javax.swing.JTextField textMsg;
+    private javax.swing.JTextField txtSenha;
+    private javax.swing.JTextField txtUser;
+    // End of variables declaration//GEN-END:variables
+}
